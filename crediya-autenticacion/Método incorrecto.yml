@@ -1,0 +1,24 @@
+info:
+  name: Método incorrecto
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: http://localhost:8080/api/v1/usuarios
+  body:
+    type: json
+    data: |-
+      {
+        "nombres": "Luis",
+        "apellidos": "Pérez",
+        "correo_electronico": "luis@crediya.com",
+        "salario_base": 2000000
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

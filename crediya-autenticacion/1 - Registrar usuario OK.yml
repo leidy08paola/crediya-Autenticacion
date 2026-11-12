@@ -1,0 +1,29 @@
+info:
+  name: 1 - Registrar usuario OK
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/api/v1/usuarios
+  body:
+    type: json
+    data: |-
+      {
+        "documento_identidad": "1001234567",
+        "nombres": "Ana",
+        "apellidos": "López",
+        "fecha_nacimiento": "1995-05-20",
+        "direccion": "Calle 10 # 5-20",
+        "telefono": "3001234567",
+        "correo_electronico": "ana.lopez@crediya.com",
+        "salario_base": 3500000
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

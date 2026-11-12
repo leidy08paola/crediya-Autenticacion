@@ -1,0 +1,24 @@
+info:
+  name: JSON roto
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: http://localhost:8080/api/v1/usuarios
+  body:
+    type: json
+    data: |-
+      {
+        "nombres": "Luis",
+        "apellidos": "Pérez",
+        "correo_electronico": "luis@crediya.com",
+        "salario_base": 2000000
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
