@@ -8,11 +8,16 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class GlobalExceptionHandlerTest {
 
@@ -38,13 +43,38 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("Error de validación responde 400 con el mensaje del campo")
-    void shouldReturnBadRequestWhenValidationFails() {
+    @DisplayName("Error de negocio por salario inválido responde 400")
+    void shouldReturnBadRequestWhenSalaryIsInvalid() {
         ResponseEntity<ErrorResponse> response =
-                handler.handleBusiness(new BusinessException(ErrorCode.REQUIRED_FIELD, "nombres"));
+                handler.handleBusiness(new BusinessException(ErrorCode.INVALID_SALARY));
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("El campo nombres es obligatorio", response.getBody().message());
+        assertEquals("INVALID_SALARY", response.getBody().code());
+    }
+
+    @Test
+    @DisplayName("Error de validación responde 400 con los mensajes ordenados")
+    void shouldReturnSortedMessagesWhenValidationFails() {
+        BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "createUserRequest");
+        bindingResult.addError(new FieldError("createUserRequest", "salarioBase",
+                "El campo salario_base es obligatorio"));
+        bindingResult.addError(new FieldError("createUserRequest", "apellidos",
+                "El campo apellidos es obligatorio"));
+        bindingResult.addError(new FieldError("createUserRequest", "nombres",
+                "El campo nombres es obligatorio"));
+
+        MethodArgumentNotValidException exception = mock(MethodArgumentNotValidException.class);
+        when(exception.getBindingResult()).thenReturn(bindingResult);
+
+        ResponseEntity<ErrorResponse> response = handler.handleValidation(exception);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("VALIDATION_ERROR", response.getBody().code());
+        assertEquals(
+                "El campo apellidos es obligatorio; El campo nombres es obligatorio; "
+                        + "El campo salario_base es obligatorio",
+                response.getBody().message());
     }
 
     @Test
