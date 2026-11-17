@@ -1,12 +1,9 @@
 package co.com.crediya.jpa.mapper;
 
 import co.com.crediya.jpa.entity.UserEntity;
-import co.com.crediya.model.user.Role;
 import co.com.crediya.model.user.User;
 
 public final class UserEntityMapper {
-
-    private static final Role DEFAULT_ROLE = Role.CLIENTE;
 
     private UserEntityMapper() {
     }
@@ -23,7 +20,7 @@ public final class UserEntityMapper {
                 .correoElectronico(user.getCorreoElectronico())
                 .salarioBase(user.getSalarioBase())
                 .password(user.getPassword())
-                .rol(user.getRol() != null ? user.getRol() : DEFAULT_ROLE)
+                .rol(user.getRol())
                 .build();
     }
 

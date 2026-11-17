@@ -46,7 +46,7 @@ class GlobalExceptionHandlerTest {
     @DisplayName("Error de negocio por salario inválido responde 400")
     void shouldReturnBadRequestWhenSalaryIsInvalid() {
         ResponseEntity<ErrorResponse> response =
-                handler.handleBusiness(new BusinessException(ErrorCode.INVALID_SALARY));
+                handler.handleBusiness(new BusinessException(ErrorCode.INVALID_SALARY, "0", "15000000"));
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("INVALID_SALARY", response.getBody().code());
