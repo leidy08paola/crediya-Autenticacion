@@ -12,10 +12,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
+
 @Slf4j
 @Repository
 @RequiredArgsConstructor
 public class JPARepositoryAdapter implements UserRepository {
+
+    private static final String UNIQUE_VIOLATION_SQL_STATE = "23505";
 
     private final JPARepository repository;
 
@@ -28,8 +32,12 @@ public class JPARepositoryAdapter implements UserRepository {
             log.info("Usuario guardado con id {}", saved.getId());
             return UserEntityMapper.toDomain(saved);
         } catch (DataIntegrityViolationException ex) {
-            log.warn("Violación de unicidad al guardar el usuario");
-            throw new BusinessException(ErrorCode.USER_ALREADY_EXISTS);
+            if (isUniqueViolation(ex)) {
+                log.warn("Violación de unicidad al guardar el usuario");
+                throw new BusinessException(ErrorCode.USER_ALREADY_EXISTS);
+            }
+            log.error("Violación de integridad distinta de unicidad al guardar el usuario");
+            throw ex;
         }
     }
 
@@ -38,5 +46,17 @@ public class JPARepositoryAdapter implements UserRepository {
     public boolean existsByCorreoElectronico(String correoElectronico) {
         log.debug("Verificando si el correo ya está registrado");
         return repository.existsByCorreoElectronico(correoElectronico);
+    }
+
+    private boolean isUniqueViolation(Throwable error) {
+        Throwable current = error;
+        while (current != null) {
+            if (current instanceof SQLException sqlException
+                    && UNIQUE_VIOLATION_SQL_STATE.equals(sqlException.getSQLState())) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 }
