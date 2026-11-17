@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 @Slf4j
 @RestController
+
 @RequestMapping("/api/v1/usuarios")
 @RequiredArgsConstructor
 @Tag(name = "Usuarios", description = "Gestión de usuarios del sistema")
@@ -41,7 +43,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Error inesperado",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<UserResponse> registerNewUser(@RequestBody CreateUserRequest request) {
+    public ResponseEntity<UserResponse> registerNewUser( @Valid @RequestBody CreateUserRequest request) {
         log.info("Solicitud de registro de usuario recibida");
         User created = registerUserUseCase.execute(UserDtoMapper.toDomain(request));
         log.info("Usuario registrado con id {}", created.getId());
